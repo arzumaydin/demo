@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Collections;
 import java.util.Set;
 
 @Service
@@ -67,7 +68,7 @@ public class DepartmentService implements AbstractDepartmentService {
     }
 
     public Set<Employee> getEmployees(int id){
-        Set<Employee> employees = null;
+        Set<Employee> employees = Collections.emptySet();
 
         if(checkDeptExists(id)) {
             employees = employeeRepo.findByDept(id);
