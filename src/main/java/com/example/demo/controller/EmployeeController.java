@@ -30,8 +30,7 @@ public class EmployeeController implements AbstractEmployeeController {
     public ResponseEntity<List<EmployeeDTO>> findAllEmployees() {
 
         List<EmployeeDTO> employees = employeeService.findEmployees();
-        ResponseEntity<List<EmployeeDTO>> response = new ResponseEntity<>(employees, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
     // create employee - post mapping
@@ -39,16 +38,14 @@ public class EmployeeController implements AbstractEmployeeController {
     public ResponseEntity<EmployeeDTO> addEmployee(@RequestBody EmployeeDTO employeeDto) {
         Employee employee = employeeService.addEmployee(employeeDto);
         EmployeeDTO responseDto = employeeService.toDTO(employee);
-        ResponseEntity<EmployeeDTO> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     // get employee by id - get mapping
     @GetMapping(value = "/{id}")
     public ResponseEntity<EmployeeDTO> findEmployee(@PathVariable("id")  int id) {
         EmployeeDTO employeeDTO = employeeService.findEmployee(id);
-        ResponseEntity<EmployeeDTO> response = new ResponseEntity<>(employeeDTO, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(employeeDTO, HttpStatus.OK);
     }
 
     // update employee - put mapping
@@ -56,8 +53,7 @@ public class EmployeeController implements AbstractEmployeeController {
     public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable("id")  int id, @RequestBody EmployeeDTO employee) {
         Employee changedEmployee = employeeService.updateEmployee(id, employee);
         EmployeeDTO employeeDTO = employeeService.toDTO(changedEmployee);
-        ResponseEntity<EmployeeDTO> response = new ResponseEntity<>(employeeDTO, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(employeeDTO, HttpStatus.OK);
     }
 
     // delete employee - delete mapping
@@ -65,9 +61,7 @@ public class EmployeeController implements AbstractEmployeeController {
     public ResponseEntity<String> deleteEmployee(@PathVariable("id") int id)
     {
         employeeService.deleteEmployee(id);
-        String message = String.format("Employee %d deleted successfully.", id);
-        ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
-        return response;
+        return ResponseEntity.ok( String.format("Employee %d deleted successfully.", id) );
     }
 
 }
