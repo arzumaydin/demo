@@ -2,12 +2,15 @@ package com.example.demo.controller;
 
 import com.example.demo.controller.interfaces.AbstractEmployeeController;
 import com.example.demo.dto.EmployeeDTO;
+import com.example.demo.dto.ClientResponseDTO;
+import com.example.demo.dto.ResponseDTO;
 import com.example.demo.entity.Employee;
 import com.example.demo.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -17,10 +20,12 @@ public class EmployeeController implements AbstractEmployeeController {
 
 
     private final EmployeeService employeeService;
+    private RestTemplate restTemplate;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService)
+    public EmployeeController(EmployeeService employeeService, RestTemplate restTemplate)
     {
+        this.restTemplate = restTemplate;
         this.employeeService = employeeService;
     }
 
@@ -62,6 +67,25 @@ public class EmployeeController implements AbstractEmployeeController {
     {
         employeeService.deleteEmployee(id);
         return ResponseEntity.ok( String.format("Employee %d deleted successfully.", id) );
+    }
+
+    // api as a client
+    private final String sourceUrl = "https://fakerapi.it/api/v1/addresses?_quantity=1";
+
+    @GetMapping("/{id}/address")
+    public ResponseEntity<ResponseDTO> getAirport(@PathVariable("id")  int id){
+
+        String uri = sourceUrl;
+        EmployeeDTO employeeDTO = employeeService.findEmployee(id);
+
+        ClientResponseDTO clientResponseDTO = restTemplate.getForObject(uri, ClientResponseDTO.class);
+        clientResponseDTO.setEmployee(employeeDTO);
+
+        ResponseDTO responseDTO = new ResponseDTO(clientResponseDTO.getEmployee(), clientResponseDTO.getData());
+
+        ResponseEntity<ResponseDTO> response = new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        return response;
     }
 
 }
