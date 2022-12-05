@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.DepartmentDTO;
+import com.example.demo.dto.EmployeeDTO;
 import com.example.demo.entity.Department;
 import com.example.demo.entity.Employee;
 import com.example.demo.repo.AbstractDepartmentRepo;
@@ -12,18 +13,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Service
 public class DepartmentService implements AbstractDepartmentService {
     private final AbstractDepartmentRepo departmentRepo;
     private final AbstractEmployeeRepo employeeRepo;
+    private final EmployeeService employeeService;
 
     @Autowired
-    public DepartmentService(AbstractDepartmentRepo departmentRepo, AbstractEmployeeRepo employeeRepo)
+    public DepartmentService(AbstractDepartmentRepo departmentRepo, AbstractEmployeeRepo employeeRepo, EmployeeService employeeService)
     {
         this.employeeRepo = employeeRepo;
         this.departmentRepo = departmentRepo;
+        this.employeeService = employeeService;
     }
 
     public Department addDept(DepartmentDTO deptDto) {
@@ -67,13 +72,17 @@ public class DepartmentService implements AbstractDepartmentService {
         return dept;
     }
 
-    public Set<Employee> getEmployees(int id){
-        Set<Employee> employees = Collections.emptySet();
+    public Set<EmployeeDTO> getEmployees(int id){
+        Set<EmployeeDTO> employeeDtos = new HashSet<EmployeeDTO>();
 
         if(checkDeptExists(id)) {
-            employees = employeeRepo.findByDept(id);
+            Set<Employee> employees = employeeRepo.findByDept(id);
+            for(Employee e : employees)
+            {
+                employeeDtos.add(employeeService.toDTO(e));
+            }
         }
-        return employees;
+        return employeeDtos;
     }
 
     public boolean checkDeptExists(int id){

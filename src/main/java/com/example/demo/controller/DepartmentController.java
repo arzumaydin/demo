@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.controller.interfaces.AbstractDepartmentController;
 import com.example.demo.dto.DepartmentDTO;
+import com.example.demo.dto.EmployeeDTO;
 import com.example.demo.entity.Department;
 import com.example.demo.entity.Employee;
 import com.example.demo.service.DepartmentService;
@@ -53,9 +54,9 @@ public class DepartmentController implements AbstractDepartmentController {
     }
 
     @GetMapping(value = "/{id}/employees")
-    public ResponseEntity<Set<Employee>> getEmployees(@PathVariable("id") int id)
+    public ResponseEntity<Set<EmployeeDTO>> getEmployees(@PathVariable("id") int id)
     {
-        Set<Employee> employees = departmentService.getEmployees(id);
+        Set<EmployeeDTO> employees = departmentService.getEmployees(id);
 
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
