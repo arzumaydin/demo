@@ -73,7 +73,7 @@ public class EmployeeController implements AbstractEmployeeController {
     private final String sourceUrl = "https://fakerapi.it/api/v1/addresses?_quantity=1";
 
     @GetMapping("/{id}/address")
-    public ResponseEntity<ResponseDTO> getAirport(@PathVariable("id")  int id){
+    public ResponseEntity<ResponseDTO> getAddress(@PathVariable("id")  int id){
 
         String uri = sourceUrl;
         EmployeeDTO employeeDTO = employeeService.findEmployee(id);
