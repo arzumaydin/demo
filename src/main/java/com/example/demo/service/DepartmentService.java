@@ -12,10 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 @Service
 public class DepartmentService implements AbstractDepartmentService {
@@ -43,7 +41,7 @@ public class DepartmentService implements AbstractDepartmentService {
     }
 
     public DepartmentDTO findById(int id) {
-        Department dept = null;
+        Department dept = new Department();
         if(checkDeptExists(id)) {
             dept = departmentRepo.findById(id);
         }
@@ -64,7 +62,7 @@ public class DepartmentService implements AbstractDepartmentService {
 
     @Transactional
     public Department updateDept(int id, DepartmentDTO deptChanges) {
-        Department dept = null;
+        Department dept = new Department();
         if(checkDeptExists(id)) {
             dept = departmentRepo.findById(id);
         }
@@ -73,7 +71,7 @@ public class DepartmentService implements AbstractDepartmentService {
     }
 
     public Set<EmployeeDTO> getEmployees(int id){
-        Set<EmployeeDTO> employeeDtos = new HashSet<EmployeeDTO>();
+        Set<EmployeeDTO> employeeDtos = new HashSet<>();
 
         if(checkDeptExists(id)) {
             Set<Employee> employees = employeeRepo.findByDept(id);

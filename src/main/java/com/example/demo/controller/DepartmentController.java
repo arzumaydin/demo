@@ -4,7 +4,6 @@ import com.example.demo.controller.interfaces.AbstractDepartmentController;
 import com.example.demo.dto.DepartmentDTO;
 import com.example.demo.dto.EmployeeDTO;
 import com.example.demo.entity.Department;
-import com.example.demo.entity.Employee;
 import com.example.demo.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -46,7 +46,7 @@ public class EmployeeService implements AbstractEmployeeService { // service use
     }
 
     public EmployeeDTO findEmployee(@PathVariable("id")  int id) {
-        Employee employee = null;
+        Employee employee = new Employee();
         if(checkEmployeeExist(id)) {
             employee = employeeRepo.findById(id);
         }
@@ -54,7 +54,7 @@ public class EmployeeService implements AbstractEmployeeService { // service use
     }
     @Transactional
     public Employee updateEmployee(int id, EmployeeDTO employeeChanges) {
-        Employee employee = null;
+        Employee employee = new Employee();
         if(checkEmployeeExist(id)) {
             employee = employeeRepo.findById(id);
         }
