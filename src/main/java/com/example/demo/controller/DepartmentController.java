@@ -53,8 +53,10 @@ public class DepartmentController implements AbstractDepartmentController {
     }
 
     @GetMapping(value = "/{id}/employees")
-    public Set<Employee> getEmployees(@PathVariable("id") int id)
+    public ResponseEntity<Set<Employee>> getEmployees(@PathVariable("id") int id)
     {
-        return departmentService.getEmployees(id);
+        Set<Employee> employees = departmentService.getEmployees(id);
+
+        return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 }
