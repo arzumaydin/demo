@@ -1,18 +1,18 @@
 package com.example.demo.service.interfaces;
 
-import com.example.demo.dto.DepartmentDTO;
 import com.example.demo.dto.EmployeeDTO;
-import com.example.demo.entity.Employee;
+import com.example.demo.dto.ResponseDTO;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface AbstractEmployeeService {
-    public List<EmployeeDTO> findEmployees();
-    public Employee addEmployee(EmployeeDTO employee);
-    public EmployeeDTO findEmployee(int id);
+    ResponseEntity<List<EmployeeDTO>> findEmployees();
+    ResponseEntity<EmployeeDTO> addEmployee(EmployeeDTO employee);
+    ResponseEntity<EmployeeDTO> findEmployee(int id);
 
-    public Employee updateEmployee(int id, EmployeeDTO employee);
-    public void deleteEmployee(int id);
-    public Employee toEntity(EmployeeDTO employeeDto);
-    public EmployeeDTO toDTO(Employee employee);
+    ResponseEntity<EmployeeDTO> updateEmployee(int id, EmployeeDTO employee);
+    ResponseEntity<String> deleteEmployee(int id);
+
+    ResponseEntity<ResponseDTO> getAddress(int id);
 }

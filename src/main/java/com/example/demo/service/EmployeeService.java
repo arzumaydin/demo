@@ -1,107 +1,90 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.ClientResponseDTO;
 import com.example.demo.dto.EmployeeDTO;
+import com.example.demo.dto.ResponseDTO;
 import com.example.demo.entity.Employee;
 import com.example.demo.repo.AbstractDepartmentRepo;
 import com.example.demo.repo.AbstractEmployeeRepo;
 import com.example.demo.service.interfaces.AbstractEmployeeService;
 import com.example.demo.util.utilities;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
+@AllArgsConstructor
 @Service
-public class EmployeeService implements AbstractEmployeeService { // service uses the repository
+public class EmployeeService implements AbstractEmployeeService {
     private final AbstractEmployeeRepo employeeRepo;
-
+    private final RestTemplate restTemplate;
     private final AbstractDepartmentRepo departmentRepo;
 
-    // inject repository
-    @Autowired
-    public EmployeeService(AbstractEmployeeRepo employeeRepo, AbstractDepartmentRepo departmentRepo)
-    {
-        this.employeeRepo = employeeRepo;
-        this.departmentRepo = departmentRepo;
-    }
-
-    public List<EmployeeDTO> findEmployees()
+    public ResponseEntity<List<EmployeeDTO>> findEmployees()
     {
         List<Employee> employees = employeeRepo.findAll();
         List<EmployeeDTO> employeeDtos = new ArrayList<>();
         for(Employee e : employees)
         {
-            EmployeeDTO employeeDto = toDTO(e);
+            EmployeeDTO employeeDto = e.toDTO();
             employeeDtos.add(employeeDto);
         }
-        return employeeDtos;
+
+        return new ResponseEntity<>(employeeDtos, HttpStatus.OK);
     }
 
-    public Employee addEmployee(EmployeeDTO employeeDto) {
-        Employee employee = toEntity(employeeDto);
-        return employeeRepo.save(employee);
+    public ResponseEntity<EmployeeDTO> addEmployee(EmployeeDTO employeeDto) {
+        int departmentID = Integer.parseInt(employeeDto.getDeptid());
+        Employee employee = employeeDto.toEntity(departmentRepo.findById(departmentID).
+                orElseThrow(() -> new EntityNotFoundException("Department does not exist.")));
+        employeeRepo.save(employee);
+        EmployeeDTO responseDto = employee.toDTO();
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    public EmployeeDTO findEmployee(@PathVariable("id")  int id) {
-        Employee employee = new Employee();
-        if(checkEmployeeExist(id)) {
-            employee = employeeRepo.findById(id);
-        }
-        return toDTO(employee);
+    public ResponseEntity<EmployeeDTO> findEmployee(@PathVariable("id")  int id) {
+        Employee employee = employeeRepo.findById(id).
+                orElseThrow( () -> new EntityNotFoundException("Employee does not exist.") );
+        return new ResponseEntity<>(employee.toDTO(), HttpStatus.OK);
     }
     @Transactional
-    public Employee updateEmployee(int id, EmployeeDTO employeeChanges) {
-        Employee employee = new Employee();
-        if(checkEmployeeExist(id)) {
-            employee = employeeRepo.findById(id);
-        }
+    public ResponseEntity<EmployeeDTO> updateEmployee(int id, EmployeeDTO employeeChanges) {
+        Employee employee = employeeRepo.findById(id).
+                orElseThrow( () -> new EntityNotFoundException("Employee does not exist.") );
         employee.setName(employeeChanges.getName());
         Date date = utilities.stringToDate(employeeChanges.getBdate());
-        employee.setDate(date);
-        employee.setDept(departmentRepo.findById(employeeChanges.getDeptid()));
+        employee.setBdate(date);
+        employee.setDept(departmentRepo.findById(Integer.parseInt(employeeChanges.getDeptid())).
+                orElseThrow(() -> new EntityNotFoundException("Department does not exist.")));
         employee.setSurname(employeeChanges.getSurname());
-        return employee;
+        employeeRepo.save(employee);
+        return new ResponseEntity<>(employee.toDTO(), HttpStatus.OK);
     }
 
-    public void deleteEmployee(@PathVariable("id")  int id){
-        if(checkEmployeeExist(id)) {
-            employeeRepo.deleteById(id);
-        }
+    public ResponseEntity<String> deleteEmployee(@PathVariable("id")  int id){
+
+        employeeRepo.findById(id).
+                orElseThrow( () -> new EntityNotFoundException("Employee does not exist.") );
+        employeeRepo.deleteById(id);
+        return ResponseEntity.ok( String.format("Employee %d deleted successfully.", id) );
     }
 
-    @Transactional
-    public Employee toEntity(EmployeeDTO employeeDto){
-        Employee employee = new Employee();
-        employee.setName(employeeDto.getName());
-        employee.setSurname(employeeDto.getSurname());
-        Date date = utilities.stringToDate(employeeDto.getBdate());
-        employee.setDate(date);
-        employee.setDept(departmentRepo.findById(employeeDto.getDeptid()));
-        return employee;
-    }
-    @Transactional
-    public EmployeeDTO toDTO(Employee employee){
-        EmployeeDTO employeeDto = new EmployeeDTO();
-        if(checkEmployeeExist(employee.getID()))
-            employeeDto.setId(employee.getID());
-        employeeDto.setName(employee.getName());
-        employeeDto.setSurname(employee.getSurname());
-        String date = utilities.dateToString(employee.getDate());
-        employeeDto.setBdate(date);
-        employeeDto.setDeptid(Integer.toString(employee.getDept().getID()));
-        return employeeDto;
-    }
+    public ResponseEntity<ResponseDTO> getAddress(int id){
 
-    public boolean checkEmployeeExist(int id)
-    {
-        if(employeeRepo.existsById(id)) {
-            return true;
-        }
-        else{
-            throw new EntityNotFoundException("Employee does not exist.");
-        }
+        EmployeeDTO employeeDTO = this.findEmployee(id).getBody();
+
+        String sourceUrl = "https://fakerapi.it/api/v1/addresses?_quantity=1";
+        ClientResponseDTO clientResponseDTO = restTemplate.getForObject(sourceUrl, ClientResponseDTO.class);
+        clientResponseDTO.setEmployee(employeeDTO);
+
+        ResponseDTO responseDTO = new ResponseDTO(clientResponseDTO.getEmployee(), clientResponseDTO.getData());
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 }

@@ -1,5 +1,19 @@
 package com.example.demo.dto;
 
+import com.example.demo.entity.Department;
+import com.example.demo.entity.Employee;
+import com.example.demo.util.utilities;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.Date;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeeDTO{
 
     private int id;
@@ -8,49 +22,13 @@ public class EmployeeDTO{
     private String bdate;
     private String deptid;
 
-
-    public EmployeeDTO(){}
-
-    public EmployeeDTO(int id, String name, String surname, String date, String deptId) {
-        super();
-        this.id = id;
-        this.name = name;
-        this.surname = surname;
-        this.bdate = date;
-        this.deptid = deptId;
+    public Employee toEntity(Department department){
+        Employee employee = new Employee();
+        employee.setName(this.getName());
+        employee.setSurname(this.getSurname());
+        Date date = utilities.stringToDate(this.getBdate());
+        employee.setBdate(date);
+        employee.setDept(department);
+        return employee;
     }
-
-    public int getID(){
-        return id;
-    }
-    public String getName(){
-        return name;
-    }
-    public String getSurname(){
-        return surname;
-    }
-    public String getBdate(){
-        return bdate;
-    }
-    public int getDeptid(){
-        return Integer.parseInt(deptid);
-    }
-
-    public void setId(int id){
-        this.id = id;
-    }
-
-    public void setName(String name){
-        this.name = name;
-    }
-    public void setSurname(String surname){
-        this.surname = surname;
-    }
-    public void setBdate(String date){
-        this.bdate = date;
-    }
-    public void setDeptid(String deptid){
-        this.deptid = deptid;
-    }
-
 }

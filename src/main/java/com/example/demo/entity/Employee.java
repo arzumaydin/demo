@@ -1,13 +1,22 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.interfaces.AbstractEmployee;
+import com.example.demo.dto.EmployeeDTO;
+import com.example.demo.util.utilities;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "employee_table")
-public class Employee implements AbstractEmployee {
+public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -26,47 +35,14 @@ public class Employee implements AbstractEmployee {
     @JoinColumn(name = "dept_id", nullable = false)
     private Department dept;
 
-    //constructor
-    public Employee(){}
-
-    public Employee(String name, String surname, Date date, Department dept) {
-        super();
-        this.name = name;
-        this.surname = surname;
-        this.bdate = date;
-        this.dept = dept;
-    }
-
-    // getters and setters
-
-    public int getID()
-    {
-        return id;
-    }
-    public String getName() {
-        return name;
-    }
-    public String getSurname() {
-        return surname;
-    }
-
-    public Date getDate() {
-        return bdate;
-    }
-    public Department getDept() {
-        return dept;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-    public void setDate(Date bdate) {
-        this.bdate = bdate;
-    }
-    public void setDept(Department dept) {
-        this.dept = dept;
+    public EmployeeDTO toDTO(){
+        EmployeeDTO employeeDto = new EmployeeDTO();
+        employeeDto.setId(this.getId());
+        employeeDto.setName(this.getName());
+        employeeDto.setSurname(this.getSurname());
+        String date = utilities.dateToString(this.getBdate());
+        employeeDto.setBdate(date);
+        employeeDto.setDeptid(Integer.toString(this.getDept().getId()));
+        return employeeDto;
     }
 }

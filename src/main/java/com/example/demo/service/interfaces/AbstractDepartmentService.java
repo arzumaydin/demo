@@ -1,15 +1,16 @@
 package com.example.demo.service.interfaces;
 
 import com.example.demo.dto.DepartmentDTO;
-import com.example.demo.entity.Department;
+import com.example.demo.dto.EmployeeDTO;
+import org.springframework.http.ResponseEntity;
+
+import java.util.Set;
+
 public interface AbstractDepartmentService {
 
-    public Department addDept(DepartmentDTO deptDto);
-    public void deleteDept(int id);
-    public DepartmentDTO findById(int id);
-
-    public Department toEntity(DepartmentDTO deptDto);
-
-    public DepartmentDTO toDTO(Department dept);
-    public Department updateDept(int id, DepartmentDTO deptChanges);
+     ResponseEntity<DepartmentDTO> addDept(DepartmentDTO deptDto);
+     ResponseEntity deleteDept(int id);
+     ResponseEntity<DepartmentDTO> findById(int id);
+     ResponseEntity<DepartmentDTO> updateDept(int id, DepartmentDTO deptChanges);
+     ResponseEntity<Set<EmployeeDTO>> getEmployees(int id);
 }

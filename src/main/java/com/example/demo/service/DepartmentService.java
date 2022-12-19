@@ -7,7 +7,9 @@ import com.example.demo.entity.Employee;
 import com.example.demo.repo.AbstractDepartmentRepo;
 import com.example.demo.repo.AbstractEmployeeRepo;
 import com.example.demo.service.interfaces.AbstractDepartmentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,80 +17,52 @@ import javax.persistence.EntityNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
+@AllArgsConstructor
 @Service
 public class DepartmentService implements AbstractDepartmentService {
     private final AbstractDepartmentRepo departmentRepo;
     private final AbstractEmployeeRepo employeeRepo;
-    private final EmployeeService employeeService;
 
-    @Autowired
-    public DepartmentService(AbstractDepartmentRepo departmentRepo, AbstractEmployeeRepo employeeRepo, EmployeeService employeeService)
-    {
-        this.employeeRepo = employeeRepo;
-        this.departmentRepo = departmentRepo;
-        this.employeeService = employeeService;
+    public ResponseEntity<DepartmentDTO> addDept(DepartmentDTO departmentDto) {
+        Department department = departmentDto.toEntity();
+        departmentRepo.save(department);
+        DepartmentDTO departmentDtoResponse = department.toDTO();
+        return new ResponseEntity<>(departmentDtoResponse, HttpStatus.OK);
     }
-
-    public Department addDept(DepartmentDTO deptDto) {
-        Department dept = toEntity(deptDto);
-        departmentRepo.save(dept);
-        return dept;
-    }
-    public void deleteDept(int id) {
-        if(checkDeptExists(id)) {
-            departmentRepo.deleteById(id);
-        }
+    public ResponseEntity deleteDept(int id) {
+        Department department = departmentRepo.findById(id).
+                orElseThrow( () -> new EntityNotFoundException("Department does not exist."));
+        departmentRepo.deleteById(id);
+        return ResponseEntity.ok( String.format("Department %d deleted successfully.", id) );
     }
 
-    public DepartmentDTO findById(int id) {
-        Department dept = new Department();
-        if(checkDeptExists(id)) {
-            dept = departmentRepo.findById(id);
-        }
-        return toDTO(dept);
-    }
-
-    public Department toEntity(DepartmentDTO deptDto){
-        Department dept = new Department();
-        dept.setName(deptDto.getName());
-        return dept;
-    }
-    public DepartmentDTO toDTO(Department dept){
-        DepartmentDTO deptDTO = new DepartmentDTO();
-        deptDTO.setName(dept.getName());
-        deptDTO.setID(dept.getID());
-        return deptDTO;
+    public ResponseEntity<DepartmentDTO> findById(int id) {
+        Department dept = departmentRepo.findById(id).
+                orElseThrow( () -> new EntityNotFoundException("Department does not exist."));
+        return new ResponseEntity<>(dept.toDTO(), HttpStatus.OK);
     }
 
     @Transactional
-    public Department updateDept(int id, DepartmentDTO deptChanges) {
-        Department dept = new Department();
-        if(checkDeptExists(id)) {
-            dept = departmentRepo.findById(id);
-        }
+    public ResponseEntity<DepartmentDTO> updateDept(int id, DepartmentDTO deptChanges) {
+        Department dept = departmentRepo.findById(id).
+                orElseThrow( () -> new EntityNotFoundException("Department does not exist."));
         dept.setName(deptChanges.getName());
-        return dept;
+        departmentRepo.save(dept);
+        return new ResponseEntity<>(dept.toDTO(), HttpStatus.OK);
     }
 
-    public Set<EmployeeDTO> getEmployees(int id){
+    public ResponseEntity<Set<EmployeeDTO>> getEmployees(int id){
         Set<EmployeeDTO> employeeDtos = new HashSet<>();
+        Department dept = departmentRepo.findById(id).
+                orElseThrow( () -> new EntityNotFoundException("Department does not exist."));
 
-        if(checkDeptExists(id)) {
-            Set<Employee> employees = employeeRepo.findByDept(id);
-            for(Employee e : employees)
-            {
-                employeeDtos.add(employeeService.toDTO(e));
-            }
+        Set<Employee> employees = employeeRepo.findByDept(id);
+        for(Employee e : employees)
+        {
+            employeeDtos.add(e.toDTO());
         }
-        return employeeDtos;
+
+        return new ResponseEntity<>(employeeDtos, HttpStatus.OK);
     }
 
-    public boolean checkDeptExists(int id){
-        if(departmentRepo.existsById(id)) {
-            return true;
-        }
-        else{
-            throw new EntityNotFoundException("Department does not exist.");
-        }
-    }
 }
