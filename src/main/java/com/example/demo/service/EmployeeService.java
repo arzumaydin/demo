@@ -8,6 +8,7 @@ import com.example.demo.repo.AbstractDepartmentRepo;
 import com.example.demo.repo.AbstractEmployeeRepo;
 import com.example.demo.service.interfaces.AbstractEmployeeService;
 import com.example.demo.util.utilities;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
+@Slf4j
 @Service
 public class EmployeeService implements AbstractEmployeeService {
 
@@ -36,14 +38,14 @@ public class EmployeeService implements AbstractEmployeeService {
     public ResponseEntity<List<EmployeeDTO>> findEmployees()
     {
         List<Employee> employees = employeeRepo.findAll();
-        List<EmployeeDTO> employeeDtos = new ArrayList<>();
+        List<EmployeeDTO> employeeDTOs = new ArrayList<>();
         for(Employee e : employees)
         {
             EmployeeDTO employeeDto = e.toDTO();
-            employeeDtos.add(employeeDto);
+            employeeDTOs.add(employeeDto);
         }
 
-        return new ResponseEntity<>(employeeDtos, HttpStatus.OK);
+        return new ResponseEntity<>(employeeDTOs, HttpStatus.OK);
     }
 
     public ResponseEntity<EmployeeDTO> addEmployee(EmployeeDTO employeeDto) {

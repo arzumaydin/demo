@@ -10,9 +10,7 @@ public interface AbstractEmployeeService {
     ResponseEntity<List<EmployeeDTO>> findEmployees();
     ResponseEntity<EmployeeDTO> addEmployee(EmployeeDTO employee);
     ResponseEntity<EmployeeDTO> findEmployee(int id);
-
     ResponseEntity<EmployeeDTO> updateEmployee(int id, EmployeeDTO employee);
     ResponseEntity<String> deleteEmployee(int id);
-
     ResponseEntity<ResponseDTO> getAddress(int id);
 }

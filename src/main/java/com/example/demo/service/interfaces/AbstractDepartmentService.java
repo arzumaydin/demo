@@ -9,7 +9,7 @@ import java.util.Set;
 public interface AbstractDepartmentService {
 
      ResponseEntity<DepartmentDTO> addDept(DepartmentDTO deptDto);
-     ResponseEntity deleteDept(int id);
+     ResponseEntity<String> deleteDept(int id);
      ResponseEntity<DepartmentDTO> findById(int id);
      ResponseEntity<?> updateDept(int id, DepartmentDTO deptChanges);
      ResponseEntity<Set<EmployeeDTO>> getEmployees(int id);

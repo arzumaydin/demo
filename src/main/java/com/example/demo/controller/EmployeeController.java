@@ -40,8 +40,7 @@ public class EmployeeController{
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> deleteEmployee(@PathVariable("id") int id)
     {
-        employeeService.deleteEmployee(id);
-        return ResponseEntity.ok( String.format("Employee %d deleted successfully.", id) );
+        return employeeService.deleteEmployee(id);
     }
 
     @GetMapping("/{id}/address")
