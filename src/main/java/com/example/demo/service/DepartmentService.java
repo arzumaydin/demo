@@ -8,6 +8,7 @@ import com.example.demo.repo.AbstractDepartmentRepo;
 import com.example.demo.repo.AbstractEmployeeRepo;
 import com.example.demo.service.interfaces.AbstractDepartmentService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class DepartmentService implements AbstractDepartmentService {
@@ -29,11 +31,15 @@ public class DepartmentService implements AbstractDepartmentService {
         DepartmentDTO departmentDtoResponse = department.toDTO();
         return new ResponseEntity<>(departmentDtoResponse, HttpStatus.OK);
     }
-    public ResponseEntity deleteDept(int id) {
+    public ResponseEntity<String> deleteDept(int id) {
         Department department = departmentRepo.findById(id).
                 orElseThrow( () -> new EntityNotFoundException("Department does not exist."));
-        departmentRepo.deleteById(id);
-        return ResponseEntity.ok( String.format("Department %d deleted successfully.", id) );
+        if(department != null)
+        {
+            departmentRepo.deleteById(id);
+            return new ResponseEntity<>(String.format("Department %d deleted successfully.", id), HttpStatus.OK );
+        }
+        return new ResponseEntity<>(String.format("Department with id %d is not found.", id), HttpStatus.NOT_FOUND);
     }
 
     public ResponseEntity<DepartmentDTO> findById(int id) {
@@ -43,26 +49,37 @@ public class DepartmentService implements AbstractDepartmentService {
     }
 
     @Transactional
-    public ResponseEntity<DepartmentDTO> updateDept(int id, DepartmentDTO deptChanges) {
-        Department dept = departmentRepo.findById(id).
-                orElseThrow( () -> new EntityNotFoundException("Department does not exist."));
-        dept.setName(deptChanges.getName());
-        departmentRepo.save(dept);
-        return new ResponseEntity<>(dept.toDTO(), HttpStatus.OK);
+    public ResponseEntity<?> updateDept(int id, DepartmentDTO deptChanges) {
+        try {
+            Department dept = departmentRepo.findById(id).
+                    orElseThrow(() -> new EntityNotFoundException("Department does not exist."));
+            dept.setName(deptChanges.getName());
+            departmentRepo.save(dept);
+            return new ResponseEntity<>(dept.toDTO(), HttpStatus.OK);
+        }
+        catch(Exception exception){
+            log.error("Something went wrong while updating the department with message \"{}\".", exception.getMessage());
+        }
+        return new ResponseEntity<>("FAILURE", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     public ResponseEntity<Set<EmployeeDTO>> getEmployees(int id){
-        Set<EmployeeDTO> employeeDtos = new HashSet<>();
-        Department dept = departmentRepo.findById(id).
-                orElseThrow( () -> new EntityNotFoundException("Department does not exist."));
-
-        Set<Employee> employees = employeeRepo.findByDept(id);
-        for(Employee e : employees)
-        {
-            employeeDtos.add(e.toDTO());
+        Set<EmployeeDTO> employeeDTOs = new HashSet<>();
+        try {
+            Department dept = departmentRepo.findById(id).
+                    orElseThrow(() -> new EntityNotFoundException("Department does not exist."));
+            if(dept != null) {
+                Set<Employee> employees = employeeRepo.findByDept(id);
+                for (Employee e : employees) {
+                    employeeDTOs.add(e.toDTO());
+                }
+                return new ResponseEntity<>(employeeDTOs, HttpStatus.OK);
+            }
         }
-
-        return new ResponseEntity<>(employeeDtos, HttpStatus.OK);
+        catch (Exception exception){
+            System.out.print("Something went wrong while getting employees from database.");
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

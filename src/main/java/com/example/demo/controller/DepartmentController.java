@@ -2,11 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.DepartmentDTO;
 import com.example.demo.dto.EmployeeDTO;
-import com.example.demo.service.DepartmentService;
 import com.example.demo.service.interfaces.AbstractDepartmentService;
-import com.example.demo.service.interfaces.AbstractEmployeeService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +23,7 @@ public class DepartmentController{
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<DepartmentDTO> updateDept(@PathVariable("id")  int id, @RequestBody DepartmentDTO deptDTO) {
+    public ResponseEntity<?> updateDept(@PathVariable("id")  int id, @RequestBody DepartmentDTO deptDTO) {
         return departmentService.updateDept(id, deptDTO);
     }
 

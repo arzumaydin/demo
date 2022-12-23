@@ -8,7 +8,7 @@ import com.example.demo.repo.AbstractDepartmentRepo;
 import com.example.demo.repo.AbstractEmployeeRepo;
 import com.example.demo.service.interfaces.AbstractEmployeeService;
 import com.example.demo.util.utilities;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,19 @@ import org.springframework.web.client.RestTemplate;
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
-@AllArgsConstructor
 @Service
 public class EmployeeService implements AbstractEmployeeService {
+
+    private static final String sourceUrl = "https://fakerapi.it/api/v1/addresses?_quantity=1";
     private final AbstractEmployeeRepo employeeRepo;
     private final RestTemplate restTemplate;
     private final AbstractDepartmentRepo departmentRepo;
+
+    public EmployeeService(AbstractEmployeeRepo employeeRepo, @Qualifier("default") RestTemplate restTemplate, AbstractDepartmentRepo departmentRepo) {
+        this.employeeRepo = employeeRepo;
+        this.restTemplate = restTemplate;
+        this.departmentRepo = departmentRepo;
+    }
 
     public ResponseEntity<List<EmployeeDTO>> findEmployees()
     {
@@ -49,9 +56,15 @@ public class EmployeeService implements AbstractEmployeeService {
     }
 
     public ResponseEntity<EmployeeDTO> findEmployee(@PathVariable("id")  int id) {
-        Employee employee = employeeRepo.findById(id).
-                orElseThrow( () -> new EntityNotFoundException("Employee does not exist.") );
-        return new ResponseEntity<>(employee.toDTO(), HttpStatus.OK);
+        try {
+            Employee employee = employeeRepo.findById(id).
+                    orElseThrow(() -> new EntityNotFoundException("Employee does not exist."));
+            return new ResponseEntity<>(employee.toDTO(), HttpStatus.OK);
+        }
+        catch(Exception exception){
+            System.out.printf("Employee with id %d is not found.", id);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
     @Transactional
     public ResponseEntity<EmployeeDTO> updateEmployee(int id, EmployeeDTO employeeChanges) {
@@ -78,8 +91,6 @@ public class EmployeeService implements AbstractEmployeeService {
     public ResponseEntity<ResponseDTO> getAddress(int id){
 
         EmployeeDTO employeeDTO = this.findEmployee(id).getBody();
-
-        String sourceUrl = "https://fakerapi.it/api/v1/addresses?_quantity=1";
         ClientResponseDTO clientResponseDTO = restTemplate.getForObject(sourceUrl, ClientResponseDTO.class);
         clientResponseDTO.setEmployee(employeeDTO);
 
