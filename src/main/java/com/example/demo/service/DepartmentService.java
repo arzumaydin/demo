@@ -49,37 +49,25 @@ public class DepartmentService implements AbstractDepartmentService {
     }
 
     @Transactional
-    public ResponseEntity<?> updateDept(int id, DepartmentDTO deptChanges) {
-        try {
-            Department dept = departmentRepo.findById(id).
-                    orElseThrow(() -> new EntityNotFoundException("Department does not exist."));
-            dept.setName(deptChanges.getName());
-            departmentRepo.save(dept);
-            return new ResponseEntity<>(dept.toDTO(), HttpStatus.OK);
-        }
-        catch(Exception exception){
-            log.error("Something went wrong while updating the department with message \"{}\".", exception.getMessage());
-        }
-        return new ResponseEntity<>("FAILURE", HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<DepartmentDTO> updateDept(int id, DepartmentDTO deptChanges) {
+        Department dept = departmentRepo.findById(id).
+                orElseThrow(() -> new EntityNotFoundException("Department does not exist."));
+        dept.setName(deptChanges.getName());
+        departmentRepo.save(dept);
+        return new ResponseEntity<>(dept.toDTO(), HttpStatus.OK);
     }
 
     public ResponseEntity<Set<EmployeeDTO>> getEmployees(int id){
         Set<EmployeeDTO> employeeDTOs = new HashSet<>();
-        try {
-            Department dept = departmentRepo.findById(id).
-                    orElseThrow(() -> new EntityNotFoundException("Department does not exist."));
-            if(dept != null) {
-                Set<Employee> employees = employeeRepo.findByDept(id);
-                for (Employee e : employees) {
-                    employeeDTOs.add(e.toDTO());
-                }
-                return new ResponseEntity<>(employeeDTOs, HttpStatus.OK);
-            }
+
+        Department dept = departmentRepo.findById(id).
+                orElseThrow(() -> new EntityNotFoundException("Department does not exist."));
+
+        Set<Employee> employees = employeeRepo.findByDept(id);
+        for (Employee e : employees) {
+            employeeDTOs.add(e.toDTO());
         }
-        catch (Exception exception){
-            System.out.print("Something went wrong while getting employees from database.");
-        }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(employeeDTOs, HttpStatus.OK);
     }
 
 }

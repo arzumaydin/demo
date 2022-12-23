@@ -11,6 +11,6 @@ public interface AbstractDepartmentService {
      ResponseEntity<DepartmentDTO> addDept(DepartmentDTO deptDto);
      ResponseEntity<String> deleteDept(int id);
      ResponseEntity<DepartmentDTO> findById(int id);
-     ResponseEntity<?> updateDept(int id, DepartmentDTO deptChanges);
+     ResponseEntity<DepartmentDTO> updateDept(int id, DepartmentDTO deptChanges);
      ResponseEntity<Set<EmployeeDTO>> getEmployees(int id);
 }

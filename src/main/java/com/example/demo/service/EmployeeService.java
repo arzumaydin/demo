@@ -58,15 +58,9 @@ public class EmployeeService implements AbstractEmployeeService {
     }
 
     public ResponseEntity<EmployeeDTO> findEmployee(@PathVariable("id")  int id) {
-        try {
-            Employee employee = employeeRepo.findById(id).
-                    orElseThrow(() -> new EntityNotFoundException("Employee does not exist."));
-            return new ResponseEntity<>(employee.toDTO(), HttpStatus.OK);
-        }
-        catch(Exception exception){
-            System.out.printf("Employee with id %d is not found.", id);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Employee employee = employeeRepo.findById(id).
+                orElseThrow(() -> new EntityNotFoundException("Employee does not exist."));
+        return new ResponseEntity<>(employee.toDTO(), HttpStatus.OK);
     }
     @Transactional
     public ResponseEntity<EmployeeDTO> updateEmployee(int id, EmployeeDTO employeeChanges) {
@@ -94,6 +88,7 @@ public class EmployeeService implements AbstractEmployeeService {
 
         EmployeeDTO employeeDTO = this.findEmployee(id).getBody();
         ClientResponseDTO clientResponseDTO = restTemplate.getForObject(sourceUrl, ClientResponseDTO.class);
+
         clientResponseDTO.setEmployee(employeeDTO);
 
         ResponseDTO responseDTO = new ResponseDTO(clientResponseDTO.getEmployee(), clientResponseDTO.getData());
