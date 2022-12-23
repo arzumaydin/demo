@@ -34,12 +34,8 @@ public class DepartmentService implements AbstractDepartmentService {
     public ResponseEntity<String> deleteDept(int id) {
         Department department = departmentRepo.findById(id).
                 orElseThrow( () -> new EntityNotFoundException("Department does not exist."));
-        if(department != null)
-        {
-            departmentRepo.deleteById(id);
-            return new ResponseEntity<>(String.format("Department %d deleted successfully.", id), HttpStatus.OK );
-        }
-        return new ResponseEntity<>(String.format("Department with id %d is not found.", id), HttpStatus.NOT_FOUND);
+        departmentRepo.deleteById(id);
+        return new ResponseEntity<>(String.format("Department %d deleted successfully.", id), HttpStatus.OK );
     }
 
     public ResponseEntity<DepartmentDTO> findById(int id) {
